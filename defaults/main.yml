@@ -1,0 +1,10 @@
+---
+docker_gpg_cert_url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+docker_apt_repository: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }} stable"
+
+docker_rootless_mode: false # recommended to use rootless mode
+docker_rootless_user: "" # if installing with rootless mode, a user must be defined
+docker_admin_users: [] # if installing with root mode, a list of admin users can be defined who can use docker cmd without sudo
+
+docker_use_pass_helper: false # uses gpg pass credential store for registry logins
+

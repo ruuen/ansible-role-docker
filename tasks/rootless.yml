@@ -1,0 +1,56 @@
+---
+- name: Install dependencies
+  become: true
+  ansible.builtin.apt:
+    name:
+      - slirp4netns
+      - dbus-user-session
+      - docker-ce-rootless-extras
+      - uidmap
+
+- name: Disable root docker daemon
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    scope: system
+    state: stopped
+    enabled: false
+  with_items:
+    - docker.service
+    - docker.socket
+
+- name: Remove root docker socket
+  become: true
+  ansible.builtin.file:
+    path: /var/run/docker.sock
+    state: absent
+
+- name: Enable user lingering
+  become: true
+  ansible.builtin.command:
+    cmd: "loginctl enable-linger {{ docker_rootless_user }}"
+    creates: /var/lib/systemd/linger/{{ docker_rootless_user }}
+  notify: "reset ssh"
+
+- name: Get rootless user uid
+  ansible.builtin.command:
+    cmd: "id -u {{ docker_rootless_user }}"
+  register: rootless_user_uid
+  changed_when: false
+
+- name: Run rootless install script
+  become: true
+  become_user: "{{ docker_rootless_user }}"
+  ansible.builtin.shell:
+    cmd: "bash -ilc 'dockerd-rootless-setuptool.sh install'"
+    creates: /run/user/{{ rootless_user_uid.stdout }}/docker.sock
+  environment:
+    XDG_RUNTIME_DIR: /run/user/{{ rootless_user_uid.stdout }}
+
+- name: Enable rootless docker daemon on boot
+  ansible.builtin.systemd_service:
+    name: docker
+    scope: user
+    state: started
+    enabled: true
+

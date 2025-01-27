@@ -1,0 +1,62 @@
+---
+- name: Install dependencies
+  become: true
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+
+- name: Download Docker apt repository key
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ docker_gpg_cert_url }}"
+    dest: /etc/apt/keyrings/docker.asc
+    mode: 0644
+    force: false
+
+- name: Add Docker apt repository
+  become: true
+  ansible.builtin.apt_repository:
+    repo: "{{ docker_apt_repository }}"
+    state: present
+    filename: docker
+    update_cache: true
+
+- name: Install Docker packages
+  become: true
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+
+- name: Install docker daemon as rootless
+  ansible.builtin.include_tasks:
+    file: rootless.yml
+  when: "docker_rootless_mode"
+
+- name: Install root docker daemon as root
+  ansible.builtin.include_tasks:
+    file: root.yml
+  when: "not docker_rootless_mode"
+
+- name: Configure local logging driver in daemon options
+  become: true
+  ansible.builtin.copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+    mode: 0644
+  notify: "restart docker"
+
+- name: Configure pass credential helper in daemon options
+  ansible.builtin.include_tasks:
+    file: pass-credential-helper.yml
+  when: 'docker_use_pass_helper'
+  notify: "restart docker"
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+

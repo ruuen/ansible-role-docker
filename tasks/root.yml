@@ -1,0 +1,17 @@
+---
+- name: Start Docker on boot
+  become: true
+  ansible.builtin.systemd_service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add admin users to docker group
+  become: true
+  ansible.builtin.user:
+    name: "{{ item }}"
+    groups: docker
+    append: true
+  with_items: "{{ docker_admin_users }}"
+  when: "docker_admin_users | length > 0"
+  notify: "reset ssh"
