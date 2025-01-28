@@ -55,7 +55,6 @@
   ansible.builtin.include_tasks:
     file: pass-credential-helper.yml
   when: 'docker_use_pass_helper'
-  notify: "restart docker"
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
