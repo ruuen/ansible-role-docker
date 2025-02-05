@@ -54,3 +54,21 @@
     state: started
     enabled: true
 
+- name: Get rootlesskit binary path
+  become: true
+  become_user: "{{ docker_rootless_user }}"
+  ansible.builtin.command:
+    cmd: "which rootlesskit"
+  when: "docker_rootless_bind_privileged_ports"
+  register: rootlesskit_path
+  changed_when: false
+  failed_when: "rootlesskit_path.rc > 1"
+
+- name: Allow privileged port binding with cap_net_bind_service
+  become: true
+  community.general.capabilities:
+    path: "{{rootlesskit_path.stdout}}"
+    capability: cap_net_bind_service=ep
+  when: "docker_rootless_bind_privileged_ports and rootlesskit_path.stdout | length > 0"
+  notify: "restart docker"
+

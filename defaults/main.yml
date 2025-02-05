@@ -4,6 +4,8 @@ docker_apt_repository: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] 
 
 docker_rootless_mode: false # recommended to use rootless mode
 docker_rootless_user: "" # if installing with rootless mode, a user must be defined
+# allow containers to bind on privileged ports by granting cap_net_bind_service to rootlesskit binary
+docker_rootless_bind_privileged_ports: false 
 docker_admin_users: [] # if installing with root mode, a list of admin users can be defined who can use docker cmd without sudo
 
 docker_use_pass_helper: false # uses gpg pass credential store for registry logins
