@@ -43,10 +43,10 @@
     file: root.yml
   when: "not docker_rootless_mode"
 
-- name: Configure local logging driver in daemon options
+- name: Configure logging driver in daemon options
   become: true
-  ansible.builtin.copy:
-    src: daemon.json
+  ansible.builtin.template:
+    src: daemon.json.j2
     dest: /etc/docker/daemon.json
     mode: 0644
   notify: "restart docker"

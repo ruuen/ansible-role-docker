@@ -1,0 +1,9 @@
+{
+  {% if docker_log_driver_opts | length > 0 %}
+  "log-driver": "{{ docker_log_driver }}",
+  "log-opts": {{ docker_log_driver_opts | to_nice_json }}
+  {% else %}
+  "log-driver": "{{ docker_log_driver}}"
+  {% endif %}
+}
+

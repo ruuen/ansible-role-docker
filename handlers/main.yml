@@ -1,5 +1,6 @@
 ---
 - name: restart docker
+  become: "{{ not docker_rootless_mode }}"
   ansible.builtin.systemd_service:
     name: docker
     state: restarted
