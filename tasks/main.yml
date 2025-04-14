@@ -49,6 +49,8 @@
     src: daemon.json.j2
     dest: "{{ docker_config_dir }}/daemon.json"
     mode: 0644
+    owner: "{{ docker_rootless_mode | ternary(docker_rootless_user, 'root') }}"
+    group: "{{ docker_rootless_mode | ternary(docker_rootless_user, 'root') }}"
   notify: "restart docker"
 
 - name: Configure pass credential helper in daemon options

@@ -40,14 +40,15 @@
 
 - name: Run rootless install script
   become: true
-  become_user: "{{ docker_rootless_user }}"
   ansible.builtin.shell:
-    cmd: "bash -ilc 'dockerd-rootless-setuptool.sh install'"
+    cmd: "sudo -u {{ docker_rootless_user }} bash -ilc 'dockerd-rootless-setuptool.sh install'"
     creates: /run/user/{{ rootless_user_uid.stdout }}/docker.sock
   environment:
     XDG_RUNTIME_DIR: /run/user/{{ rootless_user_uid.stdout }}
 
 - name: Enable rootless docker daemon on boot
+  become: true
+  become_user: "{{ docker_rootless_user }}"
   ansible.builtin.systemd_service:
     name: docker
     scope: user
@@ -77,7 +78,10 @@
     docker_config_dir: "/home/{{ docker_rootless_user }}/.config/docker"
 
 - name: Create docker config folder if it doesn't exist
+  become: true
   ansible.builtin.file:
     path: "{{ docker_config_dir }}"
     state: directory
+    owner: "{{ docker_rootless_user }}"
+    group: "{{ docker_rootless_user }}"
 
