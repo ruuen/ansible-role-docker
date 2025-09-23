@@ -18,5 +18,13 @@
 
 - name: Set docker config folder location
   ansible.builtin.set_fact:
-    docker_config_dir: "/etc/docker"
+    docker_daemon_config_dir: "/etc/docker"
+    docker_user_config_dir: "/root/.docker"
 
+- name: Create docker user config folder if it doesn't exist
+  become: true
+  ansible.builtin.file:
+    path: "{{ docker_user_config_dir }}"
+    state: directory
+    owner: "root"
+    group: "root"

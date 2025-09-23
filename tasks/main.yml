@@ -47,7 +47,7 @@
   become: true
   ansible.builtin.template:
     src: daemon.json.j2
-    dest: "{{ docker_config_dir }}/daemon.json"
+    dest: "{{ docker_daemon_config_dir }}/daemon.json"
     mode: 0644
     owner: "{{ docker_rootless_mode | ternary(docker_rootless_user, 'root') }}"
     group: "{{ docker_rootless_mode | ternary(docker_rootless_user, 'root') }}"
@@ -56,8 +56,7 @@
 - name: Configure a registry credential helper
   ansible.builtin.include_tasks:
     file: pass-credential-helper.yml
-  when: 'docker_credential_helper_enabled'
+  when: "docker_credential_helper_enabled"
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
-
