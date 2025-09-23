@@ -13,7 +13,13 @@ docker_rootless_bind_privileged_ports: false
 docker_admin_users: [] # if installing with root mode, a list of admin users can be defined who can use docker cmd without sudo
 
 ## REGISTRY ##
-docker_use_pass_helper: false # uses gpg pass credential store for registry logins
+# toggle using a credential helper for registry logins. default is pass using gpg, you can use anything here like amazon-ecr-credential-helper if needed
+docker_credential_helper_enabled: false
+docker_credential_helper_name: "pass" # name of credential helper; default is the "pass" cred helper
+docker_credential_helper_packages:
+    - golang-docker-credential-helpers # packages used by credential helper; this default is for "pass" cred helper
+# specify options for cred helper if needed
+docker_credential_helper_opts: {}
 
 ## LOGGING ##
 docker_log_driver: "local"

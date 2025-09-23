@@ -1,0 +1,9 @@
+{
+  {% if docker_credential_helper_opts | length > 0 %}
+  "credsStore": "{{ docker_credential_helper_name }}",
+  "credHelpers": {{ docker_credential_helper_opts | to_nice_json }}
+  {% else %}
+  "credsStore": "{{ docker_credential_helper_name }}"
+  {% endif %}
+}
+

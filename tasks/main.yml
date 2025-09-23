@@ -53,10 +53,10 @@
     group: "{{ docker_rootless_mode | ternary(docker_rootless_user, 'root') }}"
   notify: "restart docker"
 
-- name: Configure pass credential helper in daemon options
+- name: Configure a registry credential helper
   ansible.builtin.include_tasks:
     file: pass-credential-helper.yml
-  when: 'docker_use_pass_helper'
+  when: 'docker_credential_helper_enabled'
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
