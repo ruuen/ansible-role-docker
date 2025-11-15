@@ -21,15 +21,8 @@ docker_credential_helper_packages:
 # specify options for cred helper if needed
 docker_credential_helper_opts: {}
 
-## LOGGING ##
-docker_log_driver: "local"
-# specify options for logging driver if needed
-docker_log_driver_opts: {}
-
-## NETWORK SETTINGS ##
-# Define network address pools for containers. Default is used if not specified.
-# A format example using the default Docker allocation is below:
-# docker_address_pools:
-#     - base: "172.16.0.0/12"
-#       size: 20
-docker_address_pools: []
+## DAEMON CONFIG ##
+# provide dict of daemon config options like log-driver or default-address-pools, eg:
+# docker_daemon_options:
+#     - log-driver: local
+docker_daemon_options: {}

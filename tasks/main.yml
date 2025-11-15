@@ -45,8 +45,8 @@
 
 - name: Configure daemon options
   become: true
-  ansible.builtin.template:
-    src: daemon.json.j2
+  ansible.builtin.copy:
+    content: "{{ docker_daemon_options | to_nice_json}}"
     dest: "{{ docker_daemon_config_dir }}/daemon.json"
     mode: "0644"
     owner: "{{ docker_rootless_mode | ternary(docker_rootless_user, 'root') }}"
