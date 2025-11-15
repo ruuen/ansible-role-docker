@@ -33,6 +33,16 @@
       - docker-compose-plugin
     state: present
 
+- name: Install docker daemon as rootless
+  ansible.builtin.include_tasks:
+    file: rootless.yml
+  when: "docker_rootless_mode"
+
+- name: Install root docker daemon as root
+  ansible.builtin.include_tasks:
+    file: root.yml
+  when: "not docker_rootless_mode"
+
 - name: Configure daemon options
   become: true
   ansible.builtin.copy:
@@ -44,15 +54,14 @@
   when: "docker_daemon_options | length > 0"
   notify: "restart docker"
 
-- name: Install docker daemon as rootless
-  ansible.builtin.include_tasks:
-    file: rootless.yml
-  when: "docker_rootless_mode"
-
-- name: Install root docker daemon as root
-  ansible.builtin.include_tasks:
-    file: root.yml
-  when: "not docker_rootless_mode"
+- name: Start Docker on boot
+  become: true
+  become_user: "{{ docker_rootless_mode | ternary(docker_rootless_user, 'root') }}"
+  ansible.builtin.systemd_service:
+    name: docker
+    scope: "{{ docker_rootless_mode | ternary('user', 'system') }}"
+    state: started
+    enabled: true
 
 - name: Configure a registry credential helper
   ansible.builtin.include_tasks:

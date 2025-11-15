@@ -46,15 +46,6 @@
   environment:
     XDG_RUNTIME_DIR: /run/user/{{ rootless_user_uid.stdout }}
 
-- name: Enable rootless docker daemon on boot
-  become: true
-  become_user: "{{ docker_rootless_user }}"
-  ansible.builtin.systemd_service:
-    name: docker
-    scope: user
-    state: started
-    enabled: true
-
 - name: Get rootlesskit binary path
   become: true
   become_user: "{{ docker_rootless_user }}"
