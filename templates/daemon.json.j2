@@ -5,5 +5,9 @@
   {% else %}
   "log-driver": "{{ docker_log_driver}}"
   {% endif %}
+
+  {% if docker_address_pools | length > 0 %}
+  "default-address-pools": {{ docker_address_pools | to_nice_json }}
+  {% endif %}
 }
 
