@@ -6,20 +6,49 @@
       - ca-certificates
       - curl
 
-- name: Download Docker apt repository key
+- name: Download Docker apt repository key (Debian 12 and below)
   become: true
   ansible.builtin.get_url:
     url: "{{ docker_gpg_cert_url }}"
     dest: /etc/apt/keyrings/docker.asc
     mode: "0644"
     force: false
+  when: "ansible_distribution_major_version | int <= 12"
 
-- name: Add Docker apt repository
+- name: Add Docker apt repository (Debian 12 and below)
   become: true
   ansible.builtin.apt_repository:
     repo: "{{ docker_apt_repository }}"
     state: present
     filename: docker
+    update_cache: true
+  when: "ansible_distribution_major_version | int <= 12"
+
+- name: Add Docker apt repository (Debian 13+)
+  become: true
+  ansible.builtin.deb822_repository:
+    name: docker
+    types: [deb]
+    uris: "https://download.docker.com/linux/{{ ansible_distribution | lower }}"
+    signed_by: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+    suites: ["{{ ansible_distribution_release | lower }}"]
+    components: [stable]
+    architectures: "{{ (ansible_architecture == 'aarch64') | ternary('arm64', 'amd64') }}"
+    install_python_debian: "{{ ansible_distribution == 'Debian' }}"
+    state: present
+    enabled: true
+  when: "ansible_distribution_major_version | int > 12"
+
+- name: Install Docker packages
+  become: true
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
     update_cache: true
 
 - name: Install Docker packages
@@ -46,7 +75,7 @@
 - name: Configure daemon options
   become: true
   ansible.builtin.copy:
-    content: "{{ docker_daemon_options | to_nice_json}}"
+    content: "{{ docker_daemon_options | to_nice_json }}"
     dest: "{{ docker_daemon_config_dir }}/daemon.json"
     mode: "0644"
     owner: "{{ docker_rootless_mode | ternary(docker_rootless_user, 'root') }}"
