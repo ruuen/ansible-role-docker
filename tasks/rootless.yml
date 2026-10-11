@@ -30,7 +30,7 @@
   ansible.builtin.command:
     cmd: "loginctl enable-linger {{ docker_rootless_user }}"
     creates: /var/lib/systemd/linger/{{ docker_rootless_user }}
-  notify: "reset ssh"
+  notify: "Reset ssh"
 
 - name: Get rootless user uid
   ansible.builtin.command:
@@ -58,11 +58,11 @@
 - name: Allow privileged port binding with cap_net_bind_service
   become: true
   community.general.capabilities:
-    path: "{{rootlesskit_path.stdout}}"
+    path: "{{ rootlesskit_path.stdout }}"
     capability: cap_net_bind_service=ep
     state: "{{ docker_rootless_bind_privileged_ports | ternary('present','absent') }}"
   when: "rootlesskit_path.stdout | length > 0"
-  notify: "restart docker"
+  notify: "Restart docker"
 
 - name: Set docker config folder location
   ansible.builtin.set_fact:

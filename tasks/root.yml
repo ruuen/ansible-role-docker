@@ -7,7 +7,7 @@
     append: true
   with_items: "{{ docker_admin_users }}"
   when: "docker_admin_users | length > 0"
-  notify: "reset ssh"
+  notify: "Reset ssh"
 
 - name: Set docker config folder location
   ansible.builtin.set_fact:

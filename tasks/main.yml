@@ -74,7 +74,7 @@
     owner: "{{ docker_rootless_mode | ternary(docker_rootless_user, 'root') }}"
     group: "{{ docker_rootless_mode | ternary(docker_rootless_user, 'root') }}"
   when: "docker_daemon_options | length > 0"
-  notify: "restart docker"
+  notify: "Restart docker"
 
 - name: Start Docker on boot
   become: true
