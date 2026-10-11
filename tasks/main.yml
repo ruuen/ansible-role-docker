@@ -13,7 +13,7 @@
     dest: /etc/apt/keyrings/docker.asc
     mode: "0644"
     force: false
-  when: "ansible_distribution_major_version | int <= 12"
+  when: "ansible_facts['distribution_major_version'] | int <= 12"
 
 - name: Add Docker apt repository (Debian 12 and below)
   become: true
@@ -22,22 +22,22 @@
     state: present
     filename: docker
     update_cache: true
-  when: "ansible_distribution_major_version | int <= 12"
+  when: "ansible_facts['distribution_major_version'] | int <= 12"
 
 - name: Add Docker apt repository (Debian 13+)
   become: true
   ansible.builtin.deb822_repository:
     name: docker
     types: [deb]
-    uris: "https://download.docker.com/linux/{{ ansible_distribution | lower }}"
-    signed_by: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
-    suites: ["{{ ansible_distribution_release | lower }}"]
+    uris: "https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }}"
+    signed_by: "https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }}/gpg"
+    suites: ["{{ ansible_facts['distribution_release'] | lower }}"]
     components: [stable]
-    architectures: "{{ (ansible_architecture == 'aarch64') | ternary('arm64', 'amd64') }}"
-    install_python_debian: "{{ ansible_distribution == 'Debian' }}"
+    architectures: "{{ (ansible_facts['architecture'] == 'aarch64') | ternary('arm64', 'amd64') }}"
+    install_python_debian: "{{ ansible_facts['distribution'] == 'Debian' }}"
     state: present
     enabled: true
-  when: "ansible_distribution_major_version | int > 12"
+  when: "ansible_facts['distribution_major_version'] | int > 12"
 
 - name: Install Docker packages
   become: true

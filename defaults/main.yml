@@ -1,7 +1,7 @@
 ---
 ## INSTALL ##
-docker_gpg_cert_url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
-docker_apt_repository: "deb [arch={{ (ansible_architecture == 'aarch64') | ternary('arm64', 'amd64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }} stable"
+docker_gpg_cert_url: "https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }}/gpg"
+docker_apt_repository: "deb [arch={{ (ansible_facts['architecture'] == 'aarch64') | ternary('arm64', 'amd64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }} {{ ansible_facts['distribution_release'] | lower }} stable"
 
 ## ROOTLESS ##
 docker_rootless_mode: false # recommended to use rootless mode
@@ -17,7 +17,7 @@ docker_admin_users: [] # if installing with root mode, a list of admin users can
 docker_credential_helper_enabled: false
 docker_credential_helper_name: "pass" # name of credential helper; default is the "pass" cred helper
 docker_credential_helper_packages:
-    - golang-docker-credential-helpers # packages used by credential helper; this default is for "pass" cred helper
+  - golang-docker-credential-helpers # packages used by credential helper; this default is for "pass" cred helper
 # specify options for cred helper if needed
 docker_credential_helper_opts: {}
 
