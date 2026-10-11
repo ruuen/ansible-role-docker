@@ -9,3 +9,7 @@
 - name: reset ssh
   ansible.builtin.meta: reset_connection
 
+- name: Refresh apt cache
+  become: true
+  ansible.builtin.apt:
+    update_cache: true

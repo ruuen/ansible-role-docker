@@ -6,38 +6,31 @@
       - ca-certificates
       - curl
 
-- name: Download Docker apt repository key (Debian 12 and below)
+- name: Remove legacy Docker apt source (apt_repository format)
   become: true
-  ansible.builtin.get_url:
-    url: "{{ docker_gpg_cert_url }}"
-    dest: /etc/apt/keyrings/docker.asc
-    mode: "0644"
-    force: false
-  when: "ansible_facts['distribution_major_version'] | int <= 12"
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/docker.list
+    state: absent
 
-- name: Add Docker apt repository (Debian 12 and below)
+- name: Install python3-debian (required by deb822_repository)
   become: true
-  ansible.builtin.apt_repository:
-    repo: "{{ docker_apt_repository }}"
+  ansible.builtin.apt:
+    name: python3-debian
     state: present
-    filename: docker
-    update_cache: true
-  when: "ansible_facts['distribution_major_version'] | int <= 12"
 
-- name: Add Docker apt repository (Debian 13+)
+- name: Add Docker apt repository
   become: true
   ansible.builtin.deb822_repository:
     name: docker
-    types: [deb]
-    uris: "https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }}"
-    signed_by: "https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }}/gpg"
-    suites: ["{{ ansible_facts['distribution_release'] | lower }}"]
-    components: [stable]
-    architectures: "{{ (ansible_facts['architecture'] == 'aarch64') | ternary('arm64', 'amd64') }}"
-    install_python_debian: "{{ ansible_facts['distribution'] == 'Debian' }}"
+    types: deb
+    uris: "{{ docker_repo_url }}"
+    signed_by: "{{ docker_gpg_cert_url }}"
+    suites: "{{ ansible_facts['distribution_release'] | lower }}"
+    components: stable
+    architectures: "{{ 'arm64' if ansible_facts['architecture'] == 'aarch64' else 'amd64' }}"
     state: present
     enabled: true
-  when: "ansible_facts['distribution_major_version'] | int > 12"
+  notify: "Refresh apt cache"
 
 - name: Install Docker packages
   become: true
